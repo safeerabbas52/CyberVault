@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{d}/documents {
+    // REPLACE with your admin email (must match VITE_ADMIN_EMAIL)
+    function admin() { return request.auth != null && request.auth.token.email == 'you@example.com'; }
+    function signed() { return request.auth != null; }
+    function owns(id) { return signed() && request.auth.uid == id; }
+
+    match /members/{u} { allow read: if admin() || owns(u); allow write: if admin(); }
+
+    match /tasks/{t} {
+      allow read: if admin() || (signed() && resource.data.memberId == request.auth.uid);
+      allow write: if admin();
+      // Members: only reportedProgress/status/subtasks, never decrease, never Completed
+      allow update: if signed() && resource.data.memberId == request.auth.uid
+        && resource.data.status in ['Not Started','In Progress','Blocked','Rejected']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedProgress','status','subtasks'])
+        && request.resource.data.status in ['In Progress','Blocked','Submitted for Review']
+        && request.resource.data.reportedProgress >= resource.data.reportedProgress
+        && request.resource.data.reportedProgress <= 100;
+    }
+
+    match /submissions/{s} {
+      allow read: if admin() || (signed() && resource.data.memberId == request.auth.uid);
+      allow create: if signed() && request.resource.data.memberId == request.auth.uid
+        && request.resource.data.progress >= 0 && request.resource.data.progress <= 100;
+      allow update, delete: if admin();
+    }
+
+    match /approvals/{a} { allow read: if admin() || (signed() && resource.data.memberId == request.auth.uid); allow write: if admin(); }
+    match /publicStats/{m} { allow read: if signed(); allow write: if admin(); }
+    match /settings/{s} { allow read: if signed(); allow write: if admin(); }
+    match /auditLogs/{l} { allow read, write: if admin(); }
+    match /mailQueue/{m} { allow create: if signed(); allow read, update, delete: if admin(); }
+  }
+}
