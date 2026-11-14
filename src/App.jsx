@@ -13,7 +13,7 @@ export default function App(){
   const links=admin?[['/admin','Dashboard'],['/admin/members','Members'],['/admin/tasks','Tasks'],['/admin/approvals','Approvals']]:[['/dashboard','My Dashboard']];
   return <BrowserRouter><div className="flex flex-col md:flex-row min-h-screen bg-[#090D16] text-slate-200">
     <aside className="md:w-56 p-4 border-b md:border-r border-white/10 flex md:flex-col gap-2 flex-wrap">
-      <b className="text-cyan-400 text-lg mb-2">CyberVault</b>
+      <b className="text-cyan-400 text-lg mb-2">CyberVault Progress Tracker</b>
       {links.map(([to,l])=><NavLink key={to} to={to} end className={({isActive})=>'px-3 py-2 rounded-lg text-sm '+(isActive?'bg-cyan-500/20 text-cyan-300':'hover:bg-white/5')}>{l}</NavLink>)}
       <button onClick={()=>signOut(auth)} className="px-3 py-2 text-left text-sm text-slate-400 md:mt-auto">Sign out</button>
     </aside>

@@ -10,7 +10,7 @@ export default function Login(){
   const reset=async()=>{if(!e)return setErr('Enter your email first.');try{await sendPasswordResetEmail(auth,e);setErr('Reset email sent.');}catch{setErr('Could not send reset email.');}};
   return <div className="min-h-screen grid place-items-center bg-[#090D16] text-slate-200 p-4">
     <form onSubmit={go} className="w-full max-w-sm rounded-2xl bg-white/5 border border-white/10 p-6 space-y-3 backdrop-blur">
-      <h1 className="text-2xl font-bold text-cyan-400">CyberVault</h1><p className="text-sm text-slate-400">Team Progress Management</p>
+      <h1 className="text-2xl font-bold text-cyan-400">CyberVault Progress Tracker</h1><p className="text-sm text-slate-400">Team Progress Management</p>
       <input className={inp} type="email" placeholder="Email" value={e} onChange={x=>setE(x.target.value)} required/>
       <input className={inp} type={show?'text':'password'} placeholder="Password" value={p} onChange={x=>setP(x.target.value)} required/>
       <div className="flex justify-between text-xs text-slate-400">
