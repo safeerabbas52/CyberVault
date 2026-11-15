@@ -21,6 +21,8 @@ export default function Member({u}){
     <h2 className="font-medium">Active tasks</h2>
     {active.map(t=>{const x=f[t.id]||{};return <div key={t.id} className={card+' space-y-2'}>
       <div className="flex justify-between"><b>{t.title}</b><span className="text-xs text-slate-400">{t.status} · reported {t.reportedProgress}% · due {t.deadline||'—'}</span></div>
+      {t.description&&<p className="text-sm text-slate-300">{t.description}</p>}
+      {(t.evidence||t.criteria)&&<p className="text-xs text-slate-400">{t.evidence&&<>Required evidence: <span className="text-slate-300">{t.evidence}</span></>}{t.evidence&&t.criteria&&' · '}{t.criteria&&<>Acceptance criteria: <span className="text-slate-300">{t.criteria}</span></>}</p>}
       {t.status==='Rejected'&&<p className="text-xs text-red-400">Rejected: {t.rejectReason}</p>}
       <textarea className={inp} placeholder="Work completed today" value={x.work||''} onChange={e=>set(t.id,'work',e.target.value)}/>
       <div className="grid md:grid-cols-4 gap-2">
