@@ -20,12 +20,37 @@ export default function Member({u}){
 
   const set=(id,k,v)=>setF({...f,[id]:{...f[id],[k]:v}});
 
+  const handleImageUpload=(taskId,e)=>{
+    const file=e.target.files?.[0];
+    if(!file)return;
+
+    const reader=new FileReader();
+    reader.onload=(event)=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        const MAX_WIDTH=800;
+        const scaleSize=MAX_WIDTH/img.width;
+        canvas.width=MAX_WIDTH;
+        canvas.height=img.height*scaleSize;
+
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        
+        const compressedBase64=canvas.toDataURL('image/jpeg',0.7);
+        set(taskId,'ev',compressedBase64);
+      };
+      img.src=event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const send=async t=>{
     const x=f[t.id]||{};
     const p=Math.max(+x.p||0,t.reportedProgress);
     if(!x.work||p>100)return setMsg('Describe the work done and use progress 0–100.');
     if(x.blocked&&!x.prob?.trim())return setMsg('Please describe what is blocking you in the Problems field.');
-    if(p===100&&!x.ev?.trim())return setMsg('Please provide an Evidence URL before submitting at 100%.');
+    if(p===100&&!x.ev?.trim())return setMsg('Please upload an evidence screenshot before submitting at 100%.');
 
     await addDoc(collection(db,'submissions'),{
       memberId:u.uid,taskId:t.id,date:new Date().toISOString().slice(0,10),
@@ -79,7 +104,6 @@ export default function Member({u}){
           </span>
         </div>
 
-        {/* Visual progress bar */}
         <div className="h-1.5 bg-white/10 rounded overflow-hidden">
           <div className="h-full bg-cyan-400 transition-all" style={{width:(t.reportedProgress||0)+'%'}}/>
         </div>
@@ -93,11 +117,16 @@ export default function Member({u}){
         {t.status==='Rejected'&&<p className="text-xs text-red-400">Rejected: {t.rejectReason}</p>}
 
         <textarea className={inp} placeholder="Work completed today" value={x.work||''} onChange={e=>set(t.id,'work',e.target.value)}/>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-center">
           <input className={inp} type="number" min={t.reportedProgress} max="100" placeholder={`Progress % (min ${t.reportedProgress})`} value={x.p??''} onChange={e=>set(t.id,'p',e.target.value)}/>
-          <input className={inp} placeholder="Evidence URL (screenshot link)" value={x.ev||''} onChange={e=>set(t.id,'ev',e.target.value)}/>
+          
+          <div className="space-y-1">
+            <input type="file" accept="image/*" className="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30 cursor-pointer w-full" onChange={e=>handleImageUpload(t.id,e)}/>
+            {x.ev&&<p className="text-[10px] text-green-400">✓ Screenshot attached</p>}
+          </div>
+
           <input className={inp} placeholder="Problems / blockers" value={x.prob||''} onChange={e=>set(t.id,'prob',e.target.value)}/>
-          <input className={inp} placeholder="Tomorrow's target" value={x.next||''} onChange={e=>set(t.id,'next',e.target.value)}/>
+          <input className={inp} placeholder="Tomorrow's target" value={x.next||''} onChange={e=>set(t.id,-'next',e.target.value)}/>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
@@ -119,7 +148,7 @@ export default function Member({u}){
               <span>Progress: {s.prev}% → {s.progress}%</span>
             </div>
             <p className="mt-1">{s.work}</p>
-            {s.evidence&&<a href={s.evidence} target="_blank" rel="noreferrer" className="text-cyan-300 underline block mt-0.5 truncate">Evidence: {s.evidence}</a>}
+            {s.evidence&&(s.evidence.startsWith('data:image')?<a href={s.evidence} target="_blank" rel="noreferrer"><img src={s.evidence} alt="Proof" className="h-16 rounded mt-1 border border-white/10 object-cover"/></a>:<a href={s.evidence} target="_blank" rel="noreferrer" className="text-cyan-300 underline block mt-0.5 truncate">Evidence link</a>)}
             {s.problems&&<p className="text-amber-300 mt-0.5">Blocker/Problem: {s.problems}</p>}
           </div>)}
         </div>}
