@@ -161,12 +161,6 @@ export default function Member({u}){
     <h2 className="font-medium">Completed history</h2>
     {tasks.filter(t=>t.status==='Completed').map(t=><div key={t.id} className={card+' text-green-400'}>✓ {t.title}</div>)}
 
-    <h2 className="font-medium">Team progress (verified)</h2>
-    <div className="grid md:grid-cols-2 gap-2">
-      {team.map(s=><div key={s.id} className={card}>
-        <div className="flex justify-between text-sm"><span>{s.name} · {s.domain}</span><span>{s.percent}% ({s.done}/{s.total})</span></div>
-        <div className="h-2 bg-white/10 rounded mt-2"><div className="h-2 bg-cyan-400 rounded" style={{width:s.percent+'%'}}/></div>
-      </div>)}
     </div>
   </div>;
 }
