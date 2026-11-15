@@ -1,4 +1,16 @@
-export default function TeamLeaderboard({ stats }) {
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db, card } from '../db';
+
+export default function Leaderboard() {
+  const [stats, setStats] = useState([]);
+
+  useEffect(() => {
+    getDocs(collection(db, 'publicStats')).then(snapshot => {
+      setStats(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+  }, []);
+
   const team = stats.filter(s => s.id !== '_overall');
   const sortedTeam = [...team].sort((a, b) => (b.percent || 0) - (a.percent || 0));
 
@@ -9,7 +21,7 @@ export default function TeamLeaderboard({ stats }) {
       
       <div className="grid gap-3">
         {sortedTeam.map((s, index) => (
-          <div key={s.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+          <div key={s.id} className={card + ' flex flex-col gap-2'}>
             <div className="flex justify-between items-center text-sm">
               <div className="flex items-center gap-3">
                 <span className="text-slate-500 font-mono font-bold w-6">#{index + 1}</span>
