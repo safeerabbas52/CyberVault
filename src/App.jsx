@@ -19,7 +19,7 @@ export default function App(){
   const admin=u.email===ADMIN;
   
   const links=admin
-    ?[['/admin','Dashboard'],['/admin/members','Members'],['/admin/tasks','Tasks'],['/admin/approvals','Approvals']]
+    ?[['/admin','Dashboard'],['/admin/members','Members'],['/admin/tasks','Tasks'],['/admin/approvals','Approvals'],['/admin/resources','Resources']]
     :[['/dashboard','My Dashboard'],['/leaderboard','Team Leaderboard'],['/resources','Resources & Docs']];
 
   return <BrowserRouter><div className="flex flex-col md:flex-row min-h-screen bg-[#090D16] text-slate-200">
@@ -30,12 +30,15 @@ export default function App(){
     </aside>
     <main className="flex-1 p-4 md:p-6 overflow-x-auto"><Routes>
       {admin?<>
-        <Route path="/admin" element={<AdminDash/>}/><Route path="/admin/members" element={<Members/>}/>
-        <Route path="/admin/tasks" element={<Tasks u={u}/>}/><Route path="/admin/approvals" element={<Approvals u={u}/>}/>
+        <Route path="/admin" element={<AdminDash/>}/>
+        <Route path="/admin/members" element={<Members/>}/>
+        <Route path="/admin/tasks" element={<Tasks u={u}/>}/>
+        <Route path="/admin/approvals" element={<Approvals u={u}/>}/>
+        <Route path="/admin/resources" element={<Resources admin={true}/>}/>
       </>:<>
         <Route path="/dashboard" element={<Member u={u}/>}/>
         <Route path="/leaderboard" element={<Leaderboard/>}/>
-        <Route path="/resources" element={<Resources/>}/>
+        <Route path="/resources" element={<Resources admin={false}/>}/>
       </>}
       <Route path="*" element={<Navigate to={admin?'/admin':'/dashboard'}/>}/>
     </Routes></main></div></BrowserRouter>;
