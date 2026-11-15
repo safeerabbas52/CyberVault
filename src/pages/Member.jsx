@@ -68,7 +68,6 @@ export default function Member({u}){
   };
 
   const mine=stats.find(s=>s.id===u.uid);
-  const team=stats.filter(s=>s.id!=='_overall');
   const active=tasks.filter(t=>!['Completed','Submitted for Review'].includes(t.status));
   const visible=active.filter(t=>filter==='All'||t.status===filter);
 
@@ -126,7 +125,7 @@ export default function Member({u}){
           </div>
 
           <input className={inp} placeholder="Problems / blockers" value={x.prob||''} onChange={e=>set(t.id,'prob',e.target.value)}/>
-          <input className={inp} placeholder="Tomorrow's target" value={x.next||''} onChange={e=>set(t.id,-'next',e.target.value)}/>
+          <input className={inp} placeholder="Tomorrow's target" value={x.next||''} onChange={e=>set(t.id,'next',e.target.value)}/>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
@@ -160,7 +159,5 @@ export default function Member({u}){
 
     <h2 className="font-medium">Completed history</h2>
     {tasks.filter(t=>t.status==='Completed').map(t=><div key={t.id} className={card+' text-green-400'}>✓ {t.title}</div>)}
-
-    </div>
   </div>;
 }
