@@ -1,4 +1,4 @@
-import BackgroundFX from './components/BackgroundFX';
+import BackgroundFX from './pages/BackgroundFX.jsx';
 // ... your other imports
 
 export default function App(){
