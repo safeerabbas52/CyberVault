@@ -9,10 +9,9 @@ export const db=getFirestore(app);
 export const ADMIN=e.VITE_ADMIN_EMAIL;
 export const DOMAINS=['Web Exploitation','Reverse Engineering','Binary Exploitation','Digital Forensics','Cryptography'];
 export const STATUSES=['Not Started','In Progress','Submitted for Review','Completed','Rejected','Blocked'];
-export const inp='w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm outline-none focus:border-cyan-400';
-export const btn='rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-medium px-3 py-2 text-sm';
-export const card='rounded-xl bg-white/5 border border-white/10 p-4';
-// Weighted progress from APPROVED (Completed) tasks only. Zero tasks => 0.
+export const inp = "w-full rounded-xl bg-[#060913]/90 border border-white/10 px-3.5 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all";
+export const btn = "rounded-xl bg-gradient-to-r from-cyan-500 to-teal-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_0_20px_rgba(34,211,238,0.25)] hover:shadow-[0_0_25px_rgba(34,211,238,0.45)] hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer";
+export const card = "relative rounded-2xl bg-[#0B1120]/80 backdrop-blur-xl border border-white/[0.08] border-t-white/[0.15] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-200 hover:border-cyan-500/30";// Weighted progress from APPROVED (Completed) tasks only. Zero tasks => 0.
 export const pct=(tasks)=>{const a=tasks.filter(t=>!t.archived);const w=a.reduce((s,t)=>s+(+t.weight||1),0);
   const d=a.filter(t=>t.status==='Completed').reduce((s,t)=>s+(+t.weight||1),0);return w?Math.round(d/w*1000)/10:0;};
 export const audit=(who,action,data)=>addDoc(collection(db,'auditLogs'),{who,action,data,at:serverTimestamp()});
