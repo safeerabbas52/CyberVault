@@ -3,10 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: transparent;
+html, body, #root {
+  background: transparent !important;
   color: #e2e8f0;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  min-height: 100vh;
 }
 /* Custom sleek dark scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }

@@ -1,21 +1,4 @@
-import BackgroundFX from './pages/BackgroundFX.jsx';
-// ... your other imports
-
-export default function App(){
-  // ... your existing state and logic
-
-  return (
-    <BrowserRouter>
-      <BackgroundFX />
-      <div className="flex flex-col md:flex-row min-h-screen text-slate-200 relative z-10">
-        {/* Your existing sidebar and routes container */}
-      </div>
-    </BrowserRouter>
-  );
-}
-
-
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {BrowserRouter,Routes,Route,Navigate,NavLink} from 'react-router-dom';
 import {onAuthStateChanged,signOut} from 'firebase/auth';
 import {auth,ADMIN} from './db';
@@ -28,11 +11,105 @@ import Member from './pages/Member';
 import Leaderboard from './pages/Leaderboard';
 import Resources from './pages/Resources';
 
+function LiveCyberCanvas() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animId;
+    let w = (canvas.width = window.innerWidth);
+    let h = (canvas.height = window.innerHeight);
+
+    const onResize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', onResize);
+
+    const nodes = Array.from({ length: 55 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: (Math.random() - 0.5) * 0.8,
+      r: Math.random() * 1.8 + 1.2,
+    }));
+
+    const draw = () => {
+      ctx.fillStyle = '#04060E';
+      ctx.fillRect(0, 0, w, h);
+
+      // Ambient cyan & emerald radial glows
+      const g1 = ctx.createRadialGradient(w * 0.2, h * 0.2, 0, w * 0.2, h * 0.2, w * 0.5);
+      g1.addColorStop(0, 'rgba(6, 182, 212, 0.12)');
+      g1.addColorStop(1, 'transparent');
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, w, h);
+
+      // Tactical grid
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.04)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 48) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 48) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+      // Nodes & laser links
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        a.x += a.vx;
+        a.y += a.vy;
+        if (a.x < 0 || a.x > w) a.vx *= -1;
+        if (a.y < 0 || a.y > h) a.vy *= -1;
+
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.85)';
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const dist = Math.hypot(a.x - b.x, a.y - b.y);
+          if (dist < 160) {
+            ctx.strokeStyle = `rgba(34, 211, 238, ${0.35 * (1 - dist / 160)})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+      animId = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => {
+      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 0,
+        pointerEvents: 'none',
+      }}
+    />
+  );
+}
+
 export default function App(){
   const [u,setU]=useState(undefined);
   useEffect(()=>onAuthStateChanged(auth,setU),[]);
-  if(u===undefined)return <div className="min-h-screen grid place-items-center bg-[#060913] text-cyan-400 font-mono text-sm tracking-widest uppercase animate-pulse">Initializing CyberVault…</div>;
-  if(!u)return <Login/>;
+  if(u===undefined)return <div className="min-h-screen grid place-items-center bg-[#04060E] text-cyan-400 font-mono text-sm tracking-widest uppercase animate-pulse">Initializing CyberVault…</div>;
+  if(!u)return <><LiveCyberCanvas/><div style={{position:'relative',zIndex:10}}><Login/></div></>;
   const admin=u.email===ADMIN;
   
   const links=admin
@@ -40,9 +117,9 @@ export default function App(){
     :[['/dashboard','My Console'],['/leaderboard','Team Leaderboard'],['/resources','Intel & Docs']];
 
   return <BrowserRouter>
-    <div className="flex flex-col md:flex-row min-h-screen text-slate-200">
-      {/* Glass Sidebar */}
-      <aside className="md:w-64 p-5 border-b md:border-r border-white/[0.08] bg-[#090E1A]/80 backdrop-blur-2xl flex md:flex-col gap-2 justify-between md:justify-start">
+    <LiveCyberCanvas />
+    <div style={{ position: 'relative', zIndex: 10 }} className="flex flex-col md:flex-row min-h-screen text-slate-200">
+      <aside className="md:w-64 p-5 border-b md:border-r border-white/[0.08] bg-[#090E1A]/70 backdrop-blur-xl flex md:flex-col gap-2 justify-between md:justify-start">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <div className="h-3 w-3 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee] animate-pulse" />
@@ -87,7 +164,6 @@ export default function App(){
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 p-5 md:p-8 max-w-7xl mx-auto w-full">
         <Routes>
           {admin?<>
