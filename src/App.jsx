@@ -1,3 +1,20 @@
+import BackgroundFX from './components/BackgroundFX';
+// ... your other imports
+
+export default function App(){
+  // ... your existing state and logic
+
+  return (
+    <BrowserRouter>
+      <BackgroundFX />
+      <div className="flex flex-col md:flex-row min-h-screen text-slate-200 relative z-10">
+        {/* Your existing sidebar and routes container */}
+      </div>
+    </BrowserRouter>
+  );
+}
+
+
 import {useEffect,useState} from 'react';
 import {BrowserRouter,Routes,Route,Navigate,NavLink} from 'react-router-dom';
 import {onAuthStateChanged,signOut} from 'firebase/auth';
